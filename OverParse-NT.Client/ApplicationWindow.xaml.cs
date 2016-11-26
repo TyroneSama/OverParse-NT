@@ -81,7 +81,7 @@ namespace OverParse_NT.Client
             var manager = new DamageDumpManager(logFiles.First());
             manager.DataChanged += (sender, args) => _UpdateDisplayList(args);
 
-            await manager.Run(ct);
+            await manager.RunAsync(ct);
         }
 
         protected async override void OnClosing(CancelEventArgs e)
@@ -96,8 +96,11 @@ namespace OverParse_NT.Client
         private void _InstallSelectButton_Click(object sender, RoutedEventArgs e)
         {
             // TODO: non WinForms solution
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            dialog.Description = "Select your `pso2_bin` folder, this will be in the location you installed PSO2";
+            var dialog = new System.Windows.Forms.FolderBrowserDialog()
+            {
+                ShowNewFolderButton = false,
+                Description = "Select your `pso2_bin` folder, this will be in the location you installed PSO2"
+            };
             var result = dialog.ShowDialog();
             if (result != System.Windows.Forms.DialogResult.OK)
                 throw new Exception("DialogResult was not OK");

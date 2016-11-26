@@ -57,7 +57,7 @@ namespace OverParse_NT.Framework
             _CurrentEntities = new Dictionary<long, DataChangedEventArgs.EntityData>();
         }
 
-        public async Task Run(CancellationToken ct)
+        public async Task RunAsync(CancellationToken ct)
         {
             using (var stream = new FileStream(_FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var reader = new StreamReader(stream))
@@ -132,73 +132,6 @@ namespace OverParse_NT.Framework
                 PlayerID = _PlayerID,
                 TotalDamage = totalDamage
             });
-        }
-        
-        [Obsolete]
-        private DataChangedEventArgs _ParseDumpFile(CancellationToken ct)
-        {
-            var entries = new List<DamageDumpEntry>();
-
-            using (var stream = new FileStream(_FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var reader = new StreamReader(stream))
-            {
-                // skip header
-                reader.ReadLine();
-
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    ct.ThrowIfCancellationRequested();
-
-                    var entry = _ParseDumpFileLine(line);
-                    if (entry != null)
-                        entries.Add(entry);
-                }
-
-            }
-
-            var entities = new Dictionary<long, DataChangedEventArgs.EntityData>();
-            long playerID = 0;
-            foreach (var e in entries)
-            {
-                // check if header
-                if (e.Timestamp == 0)
-                {
-                    // header contains users player id
-                    playerID = e.SourceID;
-                    continue;
-                }
-
-                // only id range of players
-                if (e.SourceID < 10000000)
-                    continue;
-
-                if (!entities.ContainsKey(e.SourceID))
-                    entities[e.SourceID] = new DataChangedEventArgs.EntityData { ID = e.SourceID, Name = e.SourceName };
-
-                entities[e.SourceID].TotalDamage += e.Damage;
-
-                if (e.Damage > entities[e.SourceID].MaxHitDamage)
-                {
-                    entities[e.SourceID].MaxHitDamage = e.Damage;
-                    entities[e.SourceID].MaxHitName = e.AttackID.ToString(); // TODO: attack names
-                }
-
-                // Zanverse
-                if (e.AttackID == 2106601422)
-                    entities[e.SourceID].ZanverseDamage += e.Damage;
-            }
-
-            long totalDamage = 0;
-            foreach (var e in entities.Values)
-                totalDamage += e.TotalDamage;
-
-            return new DataChangedEventArgs
-            {
-                Entities = entities.Values,
-                PlayerID = playerID,
-                TotalDamage = totalDamage
-            };
         }
 
         private DamageDumpEntry _ParseDumpFileLine(string line)
