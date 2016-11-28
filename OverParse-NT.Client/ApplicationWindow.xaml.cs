@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Threading;
 using OverParse_NT.DamageDump;
+using System.Runtime.ExceptionServices;
 
 namespace OverParse_NT.Client
 {
@@ -120,7 +121,11 @@ namespace OverParse_NT.Client
             if (!isValidInstallPath(dialog.SelectedPath))
                 throw new Exception("Path selected was not valid PSO2 install");
 
-            _BackgroundRunnerTask = _BackgroundRunner(_BackgroundRunnerTokenSource.Token, dialog.SelectedPath);
+            _BackgroundRunnerTask = Task.Run(async () => await _BackgroundRunner(_BackgroundRunnerTokenSource.Token, dialog.SelectedPath).ContinueWith((t) =>
+                {
+                    if (t.IsFaulted)
+                        ExceptionDispatchInfo.Capture(t.Exception.InnerException).Throw();
+                }));
             _InstallSelectWrapper.Visibility = Visibility.Collapsed;
         }
     }
