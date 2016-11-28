@@ -19,11 +19,11 @@ namespace OverParse_NT.Client.Controls
             if (temp.Value >= 100000000 /* 100,000,000 */)
                 return (temp.Value / 1000000 /* 1,000,000 */).ToString("#,00") + "M";
             if (temp.Value >= 1000000 /* 1,000,000 */)
-                return (temp.Value / 1000000.0 /* 1,000,000 */).ToString("0.00") + "M";
+                return (temp.Value / 1000000.0 /* 1,000,000 */).ToString("0.##") + "M";
             if (temp.Value >= 100000 /* 100,000 */)
                 return (temp.Value / 1000).ToString("#,00") + "K";
             if (temp.Value >= 1000)
-                return (temp.Value / 1000.0).ToString("0.00") + "K";
+                return (temp.Value / 1000.0).ToString("0.##") + "K";
             return temp.Value.ToString("#,00");
         }
 
