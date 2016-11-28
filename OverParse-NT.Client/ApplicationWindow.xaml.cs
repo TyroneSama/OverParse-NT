@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Threading;
+using OverParse_NT.DamageDump;
 
 namespace OverParse_NT.Client
 {
@@ -43,9 +44,9 @@ namespace OverParse_NT.Client
             AppDomain.CurrentDomain.UnhandledException += (_, e) => handleException(e.ExceptionObject as Exception);
         }
 
-        private void _UpdateDisplayList(DamageDumpManager.DataChangedEventArgs args)
+        private void _UpdateDisplayList(EncounterDisplayInfo info)
         {
-            var ordered = args.Entities.OrderByDescending(x => x.TotalDamage);
+            var ordered = info.Entities.OrderByDescending(x => x.TotalDamage);
             Dispatcher.Invoke(() =>
             {
                 _DamageDisplayList.Items.Clear();
@@ -55,10 +56,9 @@ namespace OverParse_NT.Client
                         Name = e.Name,
                         Damage = e.TotalDamage,
                         DamageRatio = (100.0 / ordered.First().TotalDamage) * e.TotalDamage,
-                        DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * (e.TotalDamage - e.ZanverseDamage),
-                        DamageRatioZanverse = (100.0 / ordered.First().TotalDamage) * e.ZanverseDamage,
-                        MaxHitDamage = e.MaxHitDamage,
-                        MaxHitName = e.MaxHitName
+                        DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * e.TotalDamage,
+                        MaxHitDamage = e.StrongestAttack.Value,
+                        MaxHitName = $"({e.StrongestAttack.ID}) {e.StrongestAttack.Name}"
                     });
             });
         }
@@ -78,10 +78,11 @@ namespace OverParse_NT.Client
             logFiles.Reverse();
             //
 
-            var manager = new DamageDumpManager(logFiles.First());
-            manager.DataChanged += (sender, args) => _UpdateDisplayList(args);
+            var generator = new DamageDumpEncounterGenerator(logFiles.First());
+            var manager = new GeneratorManager(generator);
+            manager.EncounterInfoChanged += (sender, info) => _UpdateDisplayList(info);
 
-            await manager.RunAsync(ct);
+            await generator.RunAsync(ct);
         }
 
         protected override async void OnClosing(CancelEventArgs e)

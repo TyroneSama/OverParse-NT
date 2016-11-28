@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace OverParse_NT.Framework
 {
+    [Obsolete]
     public class DamageDumpManager
     {
         private class DamageDumpEntry
