@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace OverParse_NT.Framework
 {
-    public enum EncounterStepType
-    {
-        Damage,
-        Heal
-    }
 
     public struct EncounterPlayer
     {
         public long ID;
         public string Name;
     }
+    public enum EncounterAbilityType
+    {
+        Damage,
+        Heal
+    }
 
     public struct EncounterAbility
     {
-        public EncounterStepType Type;
+        public EncounterAbilityType AbilityType;
         public long Value;
 
         public long ID;

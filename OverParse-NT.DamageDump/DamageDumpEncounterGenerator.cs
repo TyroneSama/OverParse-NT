@@ -62,7 +62,7 @@ namespace OverParse_NT.DamageDump
                 Source = new EncounterPlayer { ID = entry.SourceID, Name = entry.SourceName },
                 Ability = new EncounterAbility
                 {
-                    Type = entry.Damage < 0 ? EncounterStepType.Heal : EncounterStepType.Damage,
+                    AbilityType = entry.Damage < 0 ? EncounterAbilityType.Heal : EncounterAbilityType.Damage,
                     Value = Math.Abs(entry.Damage),
 
                     ID = entry.AttackID,

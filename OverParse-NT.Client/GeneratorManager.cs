@@ -40,7 +40,7 @@ namespace OverParse_NT.Client
                 _CurrentEntities[step.Source.ID] = new EncounterDisplayInfo.Entity { Name = step.Source.Name };
 
             // TODO: handle healing steps
-            if (step.Ability.Type == EncounterStepType.Damage)
+            if (step.Ability.AbilityType == EncounterAbilityType.Damage)
             {
                 _CurrentEntities[step.Source.ID].TotalDamage += step.Ability.Value;
                 if (step.Ability.Value > _CurrentEntities[step.Source.ID].StrongestAttack.Value)
