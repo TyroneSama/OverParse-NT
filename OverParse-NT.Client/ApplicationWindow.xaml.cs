@@ -34,7 +34,7 @@ namespace OverParse_NT.Client
             InitializeComponent();
 
             // Error logging hack
-            void handleException(Exception e)
+            Action<Exception> handleException = e =>
             {
                 MessageBox.Show(e.ToString(), "Application closed due to unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
@@ -84,7 +84,7 @@ namespace OverParse_NT.Client
             await manager.RunAsync(ct);
         }
 
-        protected async override void OnClosing(CancelEventArgs e)
+        protected override async void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
 
@@ -105,7 +105,7 @@ namespace OverParse_NT.Client
             if (result != System.Windows.Forms.DialogResult.OK)
                 throw new Exception("DialogResult was not OK");
 
-            bool isValidInstallPath(string path)
+            Func<string, bool> isValidInstallPath = path =>
             {
                 if (!Directory.Exists(path))
                     return false;
@@ -114,7 +114,7 @@ namespace OverParse_NT.Client
                     return false;
 
                 return true; // more checks I guess
-            }
+            };
 
             if (!isValidInstallPath(dialog.SelectedPath))
                 throw new Exception("Path selected was not valid PSO2 install");
