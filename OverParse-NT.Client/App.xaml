@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:OverParse_NT.Client"
-             StartupUri="ApplicationWindow.xaml">
+             StartupUri="InstallSelectionDialog.xaml">
     <Application.Resources>
          
     </Application.Resources>

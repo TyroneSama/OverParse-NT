@@ -14,7 +14,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Menu>
@@ -22,15 +21,7 @@
                 <MenuItem x:Name="_AlwaysOnTopMenuItem" Header="Always on top" IsCheckable="True"/>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1" x:Name="_InstallSelectWrapper">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Label HorizontalAlignment="Center">PSO2 install directory is not set</Label>
-            <Button x:Name="_InstallSelectButton" Grid.Row="1" Content="Select PSO2 install directory (pso2__bin)" Click="_InstallSelectButton_Click"/>
-        </Grid>
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <control:DamageDisplayList x:Name="_DamageDisplayList"/>
         </ScrollViewer>
     </Grid>

@@ -1,0 +1,22 @@
+﻿<Window x:Class="OverParse_NT.Client.PluginInstallDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OverParse_NT.Client"
+        mc:Ignorable="d"
+        Title="OverParse-NT Plugin Configuration"
+        Height="300" Width="300" Closed="Window_Closed">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Some text about plugins needing to be updated or something"/>
+        <Label Grid.Row="1" x:Name="_FeedbackLabel"/>
+        <Button Grid.Row="2" x:Name="_InstallButton" Content="Install plugins" Click="_InstallButton_Click" IsEnabled="False"/>
+        <Button Grid.Row="3" x:Name="_SkipButton" Content="Skip this step" Click="_SkipButton_Click"/>
+    </Grid>
+</Window>

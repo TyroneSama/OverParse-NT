@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D4E02877-3FDF-4D0E-92D6-8486C6F09076}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OverParse_NT.Client</RootNamespace>
     <AssemblyName>OverParse-NT.Client</AssemblyName>
@@ -79,6 +79,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PluginInstallDialog.xaml.cs">
+      <DependentUpon>PluginInstallDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationWindow.xaml.cs">
@@ -90,6 +94,9 @@
     <Compile Include="Controls\PrettyDamageConverter.cs" />
     <Compile Include="EncounterDisplayInfo.cs" />
     <Compile Include="GeneratorManager.cs" />
+    <Compile Include="InstallSelectionDialog.xaml.cs">
+      <DependentUpon>InstallSelectionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -110,6 +117,7 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
@@ -122,6 +130,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DamageDisplayList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InstallSelectionDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PluginInstallDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -147,6 +163,15 @@
       <Project>{93420d56-5f8b-437f-9be7-d1d717bfc0d2}</Project>
       <Name>OverParse-NT.Framework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ddraw.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PSO2DamageDump.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pso2h.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

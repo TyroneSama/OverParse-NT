@@ -59,5 +59,35 @@ namespace OverParse_NT.Client.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ddraw {
+            get {
+                object obj = ResourceManager.GetObject("ddraw", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] PSO2DamageDump {
+            get {
+                object obj = ResourceManager.GetObject("PSO2DamageDump", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] pso2h {
+            get {
+                object obj = ResourceManager.GetObject("pso2h", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

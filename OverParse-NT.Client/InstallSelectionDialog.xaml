@@ -1,0 +1,30 @@
+﻿<Window x:Class="OverParse_NT.Client.InstallSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OverParse_NT.Client"
+        mc:Ignorable="d"
+        Title="OverParse-NT Configuration"
+        MinWidth="480" MinHeight="240"
+        Width="480" Height="240">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="Something about selecting install" />
+        <Label x:Name="_PathValidationFeedback" Grid.Row="1" HorizontalAlignment="Center" Content="Install Selection" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="_PathInputField" TextChanged="_PathInputField_TextChanged" />
+            <Button x:Name="_PathInputBrowseButton" Grid.Column="1" Content="Browse" Click="_PathInputBrowseButton_Click" />
+        </Grid>
+        <Button x:Name="_ConfirmButton" Grid.Row="3" Content="Confirm" Click="_ConfirmButton_Click" />
+    </Grid>
+</Window>

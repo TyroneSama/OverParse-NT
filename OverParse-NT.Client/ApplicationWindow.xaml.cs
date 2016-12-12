@@ -35,14 +35,11 @@ namespace OverParse_NT.Client
         {
             InitializeComponent();
 
-            // Error logging hack
-            Action<Exception> handleException = e =>
+            _BackgroundRunnerTask = Task.Run(async () => await _BackgroundRunner(_BackgroundRunnerTokenSource.Token).ContinueWith((t) =>
             {
-                MessageBox.Show(e.ToString(), "Application closed due to unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
-            };
-            Dispatcher.UnhandledException += (_, e) => handleException(e.Exception);
-            AppDomain.CurrentDomain.UnhandledException += (_, e) => handleException(e.ExceptionObject as Exception);
+                if (t.IsFaulted)
+                    ExceptionDispatchInfo.Capture(t.Exception.InnerException).Throw();
+            }));
         }
 
         private void _UpdateDisplayList(EncounterDisplayInfo info)
@@ -64,10 +61,10 @@ namespace OverParse_NT.Client
             });
         }
 
-        private async Task _BackgroundRunner(CancellationToken ct, string installLocation)
+        private async Task _BackgroundRunner(CancellationToken ct)
         {
             // temp
-            var logDirectoryPath = Path.Combine(installLocation, "damagelogs");
+            var logDirectoryPath = Path.Combine(Properties.Settings.Default.PSO2BinDirectory, "damagelogs");
             if (!Directory.Exists(logDirectoryPath))
                 throw new Exception("Logs directory does not exist"); // TODO
 
@@ -93,40 +90,6 @@ namespace OverParse_NT.Client
             _BackgroundRunnerTokenSource.Cancel();
             if (_BackgroundRunnerTask != null)
                 await _BackgroundRunnerTask;
-        }
-
-        private void _InstallSelectButton_Click(object sender, RoutedEventArgs e)
-        {
-            // TODO: non WinForms solution
-            var dialog = new System.Windows.Forms.FolderBrowserDialog()
-            {
-                ShowNewFolderButton = false,
-                Description = "Select your `pso2_bin` folder, this will be in the location you installed PSO2"
-            };
-            var result = dialog.ShowDialog();
-            if (result != System.Windows.Forms.DialogResult.OK)
-                throw new Exception("DialogResult was not OK");
-
-            Func<string, bool> isValidInstallPath = path =>
-            {
-                if (!Directory.Exists(path))
-                    return false;
-
-                if (Directory.GetFiles(path, "pso2.exe").Length == 0)
-                    return false;
-
-                return true; // more checks I guess
-            };
-
-            if (!isValidInstallPath(dialog.SelectedPath))
-                throw new Exception("Path selected was not valid PSO2 install");
-
-            _BackgroundRunnerTask = Task.Run(async () => await _BackgroundRunner(_BackgroundRunnerTokenSource.Token, dialog.SelectedPath).ContinueWith((t) =>
-                {
-                    if (t.IsFaulted)
-                        ExceptionDispatchInfo.Capture(t.Exception.InnerException).Throw();
-                }));
-            _InstallSelectWrapper.Visibility = Visibility.Collapsed;
         }
     }
 }
