@@ -16,15 +16,15 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <TextBlock Text="Something about selecting install" />
-        <Label x:Name="_PathValidationFeedback" Grid.Row="1" HorizontalAlignment="Center" Content="Install Selection" />
+        <Label x:Name="_PathValidationFeedback" Grid.Row="1" HorizontalAlignment="Center" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*" />
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
             <TextBox x:Name="_PathInputField" TextChanged="_PathInputField_TextChanged" />
-            <Button x:Name="_PathInputBrowseButton" Grid.Column="1" Content="Browse" Click="_PathInputBrowseButton_Click" />
+            <Button x:Name="_PathInputBrowseButton" Grid.Column="1" Content="{local:Locale InstallSelectionDialog_Browse}" Click="_PathInputBrowseButton_Click" />
         </Grid>
-        <Button x:Name="_ConfirmButton" Grid.Row="3" Content="Confirm" Click="_ConfirmButton_Click" />
+        <Button x:Name="_ConfirmButton" Grid.Row="3" Content="{local:Locale InstallSelectionDialog_Confirm}" Click="_ConfirmButton_Click" />
     </Grid>
 </Window>

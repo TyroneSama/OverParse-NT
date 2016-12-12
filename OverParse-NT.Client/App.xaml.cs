@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -27,6 +28,9 @@ namespace OverParse_NT.Client
             };
             Dispatcher.UnhandledException += (_, ex) => handleException(ex.Exception);
             AppDomain.CurrentDomain.UnhandledException += (_, ex) => handleException(ex.ExceptionObject as Exception);
+
+            // initialise program culture
+            LocaleManager.Instance.CurrentCulture = CultureInfo.CurrentCulture;
 
             base.OnStartup(e);
         }

@@ -52,33 +52,38 @@ namespace OverParse_NT.Client
 
             if (text.Length == 0)
             {
-                _PathValidationFeedback.Content = "Please select a directory";
+                BindingOperations.ClearBinding(_PathValidationFeedback, ContentProperty);
+                BindingOperations.SetBinding(_PathValidationFeedback, ContentProperty, new LocaleExtension("InstallSelectionDialog_ValidationNoDirectory"));
                 _PathValidationFeedback.Foreground = Brushes.Orange;
                 return;
             }
 
             if (!Directory.Exists(text))
             {
-                _PathValidationFeedback.Content = "Path is not a valid directory";
+                BindingOperations.ClearBinding(_PathValidationFeedback, ContentProperty);
+                BindingOperations.SetBinding(_PathValidationFeedback, ContentProperty, new LocaleExtension("InstallSelectionDialog_ValidationInvalidDirectory"));
                 _PathValidationFeedback.Foreground = Brushes.Red;
                 return;
             }
 
             if (new DirectoryInfo(text).Name != "pso2_bin")
             {
-                _PathValidationFeedback.Content = "Directory must be named `pso2__bin`"; // double underscore cus windows
+                BindingOperations.ClearBinding(_PathValidationFeedback, ContentProperty);
+                BindingOperations.SetBinding(_PathValidationFeedback, ContentProperty, new LocaleExtension("InstallSelectionDialog_ValidationWrongDirectoryName"));
                 _PathValidationFeedback.Foreground = Brushes.Red;
                 return;
             }
 
             if (Directory.GetFiles(text, "pso2.exe").Length == 0)
             {
-                _PathValidationFeedback.Content = "Directory does not contain `pso2.exe` executable";
+                BindingOperations.ClearBinding(_PathValidationFeedback, ContentProperty);
+                BindingOperations.SetBinding(_PathValidationFeedback, ContentProperty, new LocaleExtension("InstallSelectionDialog_ValidationNoExecutable"));
                 _PathValidationFeedback.Foreground = Brushes.Red;
                 return;
             }
 
-            _PathValidationFeedback.Content = "Valid `pso2__bin` directory selected!";
+            BindingOperations.ClearBinding(_PathValidationFeedback, ContentProperty);
+            BindingOperations.SetBinding(_PathValidationFeedback, ContentProperty, new LocaleExtension("InstallSelectionDialog_ValidationValid"));
             _PathValidationFeedback.Foreground = Brushes.Green;
             _ConfirmButton.IsEnabled = true;
         }
@@ -96,7 +101,7 @@ namespace OverParse_NT.Client
             var browserDialog = new FolderBrowserDialog()
             {
                 ShowNewFolderButton = false,
-                Description = "Please select your `pso2_bin` install directory"
+                Description = LocaleManager.Instance["InstallSelectionDialog_BrowserDescription"]
             };
 
             if (browserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
