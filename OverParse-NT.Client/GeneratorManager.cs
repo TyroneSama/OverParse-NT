@@ -36,15 +36,15 @@ namespace OverParse_NT.Client
         private void _HandleStep(EncounterStep step)
         {
             // if the entity is new add to dictionary
-            if (!_CurrentEntities.ContainsKey(step.Source.ID))
-                _CurrentEntities[step.Source.ID] = new EncounterDisplayInfo.Entity { Name = step.Source.Name };
+            if (!_CurrentEntities.ContainsKey(step.Source.Account))
+                _CurrentEntities[step.Source.Account] = new EncounterDisplayInfo.Entity { Name = step.Source.Name };
 
             // TODO: handle healing steps
             if (step.Ability.AbilityType == EncounterAbilityType.Damage)
             {
-                _CurrentEntities[step.Source.ID].TotalDamage += step.Ability.Value;
-                if (step.Ability.Value > _CurrentEntities[step.Source.ID].StrongestAttack.Value)
-                    _CurrentEntities[step.Source.ID].StrongestAttack = step.Ability;
+                _CurrentEntities[step.Source.Account].TotalDamage += step.Ability.Value;
+                if (step.Ability.Value > _CurrentEntities[step.Source.Account].StrongestAttack.Value)
+                    _CurrentEntities[step.Source.Account].StrongestAttack = step.Ability;
             }
         }
     }

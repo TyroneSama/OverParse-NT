@@ -23,7 +23,7 @@ namespace OverParse_NT.Client
             // Error logging hack
             Action<Exception> handleException = ex =>
             {
-                MessageBox.Show(e.ToString(), "Application closed due to unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.ToString(), "Application closed due to unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
                 Current.Shutdown();
             };
             Dispatcher.UnhandledException += (_, ex) => handleException(ex.Exception);

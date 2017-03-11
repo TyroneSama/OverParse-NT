@@ -1,8 +1,7 @@
 ﻿<Application x:Class="OverParse_NT.Client.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:OverParse_NT.Client"
-             StartupUri="InstallSelectionDialog.xaml">
+             StartupUri="ApplicationWindow.xaml">
     <Application.Resources>
          
     </Application.Resources>

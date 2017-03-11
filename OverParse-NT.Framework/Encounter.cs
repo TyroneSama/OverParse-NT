@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace OverParse_NT.Framework
 {
 
-    public struct EncounterPlayer
+    public class EncounterPlayer
     {
-        public long ID;
+        public uint Account;
         public string Name;
     }
     public enum EncounterAbilityType
@@ -21,9 +21,9 @@ namespace OverParse_NT.Framework
     public struct EncounterAbility
     {
         public EncounterAbilityType AbilityType;
-        public long Value;
+        public int Value;
 
-        public long ID;
+        public uint Account;
         public string Name;
         public bool IsJustAttack;
         public bool IsCriticalAttack;

@@ -18,7 +18,7 @@ using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Threading;
-using OverParse_NT.DamageDump;
+using OverParse_NT.PSRT;
 using System.Runtime.ExceptionServices;
 
 namespace OverParse_NT.Client
@@ -35,11 +35,11 @@ namespace OverParse_NT.Client
         {
             InitializeComponent();
 
-            _BackgroundRunnerTask = Task.Run(async () => await _BackgroundRunner(_BackgroundRunnerTokenSource.Token).ContinueWith((t) =>
+            _BackgroundRunnerTask = _BackgroundRunner(_BackgroundRunnerTokenSource.Token).ContinueWith((t) =>
             {
                 if (t.IsFaulted)
                     ExceptionDispatchInfo.Capture(t.Exception.InnerException).Throw();
-            }));
+            });
         }
 
         private void _UpdateDisplayList(EncounterDisplayInfo info)
@@ -56,27 +56,14 @@ namespace OverParse_NT.Client
                         DamageRatio = (100.0 / ordered.First().TotalDamage) * e.TotalDamage,
                         DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * e.TotalDamage,
                         MaxHitDamage = e.StrongestAttack.Value,
-                        MaxHitName = $"({e.StrongestAttack.ID}) {e.StrongestAttack.Name}"
+                        MaxHitName = $"({e.StrongestAttack.Account}) {e.StrongestAttack.Name}"
                     });
             });
         }
 
         private async Task _BackgroundRunner(CancellationToken ct)
         {
-            // temp
-            var logDirectoryPath = Path.Combine(Properties.Settings.Default.PSO2BinDirectory, "damagelogs");
-            if (!Directory.Exists(logDirectoryPath))
-                throw new Exception("Logs directory does not exist"); // TODO
-
-            var logFiles = Directory.GetFiles(logDirectoryPath, "*.csv").ToList();
-            if (logFiles.Count == 0)
-                throw new Exception("No log files found");
-
-            logFiles.Sort();
-            logFiles.Reverse();
-            //
-
-            var generator = new DamageDumpEncounterGenerator(logFiles.First());
+            var generator = new PSRTGenerator();
             var manager = new GeneratorManager(generator);
             manager.EncounterInfoChanged += (sender, info) => _UpdateDisplayList(info);
 
