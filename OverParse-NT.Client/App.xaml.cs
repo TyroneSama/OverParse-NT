@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OverParse_NT.DamageDump;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -20,6 +21,11 @@ namespace OverParse_NT.Client
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            //// TEMP
+            //var watcher = new LogFileWatcher();
+            //watcher.OnNewEntry += (sender, entry) => Console.WriteLine("New -> " + entry.Source.Name);
+            //Task.Run(() => watcher.RunAsync(@"C:\Users\g\Desktop\test.txt")).Wait();
+
             // Error logging hack
             Action<Exception> handleException = ex =>
             {

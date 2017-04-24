@@ -20,6 +20,8 @@ using System.IO;
 using System.Windows.Threading;
 using OverParse_NT.PSRT;
 using System.Runtime.ExceptionServices;
+using OverParse_NT.DamageDump;
+using System.Diagnostics;
 
 namespace OverParse_NT.Client
 {
@@ -30,6 +32,8 @@ namespace OverParse_NT.Client
     {
         private CancellationTokenSource _BackgroundRunnerTokenSource = new CancellationTokenSource();
         private Task _BackgroundRunnerTask;
+
+        private string _DamageDumpFolder => Path.Combine(Properties.Settings.Default.PSO2BinDirectory, @"damagelogs");
 
         public ApplicationWindow()
         {
@@ -42,32 +46,102 @@ namespace OverParse_NT.Client
             });
         }
 
-        private void _UpdateDisplayList(EncounterDisplayInfo info)
-        {
-            var ordered = info.Entities.OrderByDescending(x => x.TotalDamage);
-            Dispatcher.Invoke(() =>
-            {
-                _DamageDisplayList.Items.Clear();
-                foreach (var e in ordered)
-                    _DamageDisplayList.Items.Add(new DamageDisplayList.DamageDisplayData
-                    {
-                        Name = e.Name,
-                        Damage = e.TotalDamage,
-                        DamageRatio = (100.0 / ordered.First().TotalDamage) * e.TotalDamage,
-                        DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * e.TotalDamage,
-                        MaxHitDamage = e.StrongestAttack.Value,
-                        MaxHitName = $"({e.StrongestAttack.Account}) {e.StrongestAttack.Name}"
-                    });
-            });
-        }
-
         private async Task _BackgroundRunner(CancellationToken ct)
         {
-            var generator = new PSRTGenerator();
-            var manager = new GeneratorManager(generator);
-            manager.EncounterInfoChanged += (sender, info) => _UpdateDisplayList(info);
+            var accumulator = new DamageDumpCharacterAccumulator();
+            accumulator.InfosChanged += (sender, infos) =>
+            {
+                var ordered = infos.OrderByDescending(x => x.TotalDamage);
+                Dispatcher.Invoke(() =>
+                {
+                    _DamageDisplayList.Items.Clear();
+                    foreach (var i in ordered)
+                        _DamageDisplayList.Items.Add(new DamageDisplayList.DamageDisplayData
+                        {
+                            Name = i.Name,
+                            Damage = i.TotalDamage,
+                            DamageRatio = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
+                            DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
+                            MaxHitDamage = i.MaxHitDamage,
+                            MaxHitName = $"Id: {i.MaxHitAction}"
+                        });
+                });
+            };
 
-            await generator.RunAsync(ct);
+            // TODO: this should probably be done in a better way.
+            // at the moment if anything goes wrong the system will
+            // reset the accumulator and start again, ~better than a crash?~
+            while (true)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                // TODO: this along with the file spinner need to be event based
+                // instead of spinner based
+                var logFile = _GetLatestLogFile(_DamageDumpFolder);
+                if (logFile == null)
+                {
+                    await Task.Delay(1000, ct);
+                    continue;
+                }
+
+                try
+                {
+                    var watcher = new LogFileWatcher();
+                    watcher.OnNewEntries += (sender, entries) => accumulator.ProcessEntries(entries);
+
+                    var spinnerSource = new CancellationTokenSource();
+                    // TODO
+                    var fileSpinner = Task.Run(async () =>
+                    {
+                        while (true)
+                        {
+                            ct.ThrowIfCancellationRequested();
+
+                            if (_GetLatestLogFile(_DamageDumpFolder) != logFile)
+                            {
+                                spinnerSource.Cancel();
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(1000, ct);
+                            }
+                        }
+                    });
+
+                    await watcher.RunAsync(logFile, CancellationTokenSource.CreateLinkedTokenSource(ct, spinnerSource.Token).Token);
+                    await fileSpinner;
+                }
+                catch (OperationCanceledException)
+                {
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Exception in log file watcher loop -> {ex.Message}");
+                }
+                finally
+                {
+                    // TODO: this should be some form of encounter end
+                    // instead of just discarding the data
+                    accumulator.Reset();
+                }
+            }
+        }
+
+        private string _GetLatestLogFile(string logsDirectory)
+        {
+            if (!Directory.Exists(logsDirectory))
+                return null;
+
+            var logs = Directory.GetFiles(logsDirectory, "*.csv").ToList();
+            if (logs.Count == 0)
+                return null;
+
+            logs.Sort();
+            logs.Reverse();
+
+            return logs.First();
         }
 
         protected override async void OnClosing(CancelEventArgs e)
