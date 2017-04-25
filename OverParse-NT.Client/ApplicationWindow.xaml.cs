@@ -34,11 +34,31 @@ namespace OverParse_NT.Client
         private Task _BackgroundRunnerTask;
         private SemaphoreSlim _BackgroundSemaphore = new SemaphoreSlim(1);
 
+        private enum DamageDispalyListState
+        {
+            Waiting,
+            Loading,
+            Visible
+        }
+
+        // TODO: replace this with actual bindings
+        private DamageDispalyListState _DamageDispalyListState
+        {
+            set
+            {
+                _DamageDisplayList.Visibility = value == DamageDispalyListState.Visible ? Visibility.Visible : Visibility.Collapsed;
+                _DamageDisplayListLoading.Visibility = value == DamageDispalyListState.Loading ? Visibility.Visible : Visibility.Collapsed;
+                _DamageDisplayListWaiting.Visibility = value == DamageDispalyListState.Waiting ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
         private string _DamageDumpFolder => Path.Combine(Properties.Settings.Default.PSO2BinDirectory, "damagelogs");
 
         public ApplicationWindow()
         {
             InitializeComponent();
+
+            _DamageDispalyListState = DamageDispalyListState.Waiting;
 
             _BackgroundRunnerTask = _BackgroundRunner(_BackgroundRunnerTokenSource.Token).ContinueWith((t) =>
             {
@@ -68,6 +88,7 @@ namespace OverParse_NT.Client
                     _DamageDisplayList.Items.Clear();
                     foreach (var i in items)
                         _DamageDisplayList.Items.Add(i);
+                    _DamageDispalyListState = DamageDispalyListState.Visible;
                 });
             };
 
@@ -88,6 +109,8 @@ namespace OverParse_NT.Client
 
                 try
                 {
+                    Dispatcher.Invoke(() => _DamageDispalyListState = DamageDispalyListState.Loading);
+
                     var watcher = new LogFileWatcher();
                     watcher.OnNewEntries += async (sender, entries) =>
                     {
@@ -146,6 +169,8 @@ namespace OverParse_NT.Client
                     {
                         _BackgroundSemaphore.Release();
                     }
+
+                    Dispatcher.Invoke(() => _DamageDispalyListState = DamageDispalyListState.Waiting);
                 }
             }
         }

@@ -21,8 +21,11 @@
                 <MenuItem x:Name="_AlwaysOnTopMenuItem" Header="Always on top" IsCheckable="True"/>
             </MenuItem>
         </Menu>
+
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <control:DamageDisplayList x:Name="_DamageDisplayList"/>
         </ScrollViewer>
+        <Label Grid.Row="1" x:Name="_DamageDisplayListWaiting" HorizontalAlignment="Center" VerticalAlignment="Center">Waiting for log file</Label>
+        <Label Grid.Row="1" x:Name="_DamageDisplayListLoading" HorizontalAlignment="Center" VerticalAlignment="Center">Loading log file</Label>
     </Grid>
 </Window>
