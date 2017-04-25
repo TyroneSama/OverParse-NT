@@ -32,8 +32,9 @@ namespace OverParse_NT.Client
     {
         private CancellationTokenSource _BackgroundRunnerTokenSource = new CancellationTokenSource();
         private Task _BackgroundRunnerTask;
+        private SemaphoreSlim _BackgroundSemaphore = new SemaphoreSlim(1);
 
-        private string _DamageDumpFolder => Path.Combine(Properties.Settings.Default.PSO2BinDirectory, @"damagelogs");
+        private string _DamageDumpFolder => Path.Combine(Properties.Settings.Default.PSO2BinDirectory, "damagelogs");
 
         public ApplicationWindow()
         {
@@ -52,19 +53,21 @@ namespace OverParse_NT.Client
             accumulator.InfosChanged += (sender, infos) =>
             {
                 var ordered = infos.OrderByDescending(x => x.TotalDamage);
+                var items = ordered.Select(i => new DamageDisplayList.DamageDisplayData
+                {
+                    Name = i.Name,
+                    Damage = i.TotalDamage,
+                    DamageRatio = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
+                    DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
+                    MaxHitDamage = i.MaxHitDamage,
+                    MaxHitName = $"Id: {i.MaxHitAction}"
+                });
+
                 Dispatcher.Invoke(() =>
                 {
                     _DamageDisplayList.Items.Clear();
-                    foreach (var i in ordered)
-                        _DamageDisplayList.Items.Add(new DamageDisplayList.DamageDisplayData
-                        {
-                            Name = i.Name,
-                            Damage = i.TotalDamage,
-                            DamageRatio = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
-                            DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
-                            MaxHitDamage = i.MaxHitDamage,
-                            MaxHitName = $"Id: {i.MaxHitAction}"
-                        });
+                    foreach (var i in items)
+                        _DamageDisplayList.Items.Add(i);
                 });
             };
 
@@ -75,8 +78,7 @@ namespace OverParse_NT.Client
             {
                 ct.ThrowIfCancellationRequested();
 
-                // TODO: this along with the file spinner need to be event based
-                // instead of spinner based
+                // wait for file to show up
                 var logFile = _GetLatestLogFile(_DamageDumpFolder);
                 if (logFile == null)
                 {
@@ -87,34 +89,45 @@ namespace OverParse_NT.Client
                 try
                 {
                     var watcher = new LogFileWatcher();
-                    watcher.OnNewEntries += (sender, entries) => accumulator.ProcessEntries(entries);
-
-                    var spinnerSource = new CancellationTokenSource();
-                    // TODO
-                    var fileSpinner = Task.Run(async () =>
+                    watcher.OnNewEntries += async (sender, entries) =>
                     {
-                        while (true)
+                        await _BackgroundSemaphore.WaitAsync();
+                        try
                         {
-                            ct.ThrowIfCancellationRequested();
-
-                            if (_GetLatestLogFile(_DamageDumpFolder) != logFile)
-                            {
-                                spinnerSource.Cancel();
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(1000, ct);
-                            }
+                            accumulator.ProcessEntries(entries);
                         }
-                    });
+                        finally
+                        {
+                            _BackgroundSemaphore.Release();
+                        }
+                    };
 
-                    await watcher.RunAsync(logFile, CancellationTokenSource.CreateLinkedTokenSource(ct, spinnerSource.Token).Token);
-                    await fileSpinner;
+                    using (var fsWatcher = new FileSystemWatcher())
+                    {
+                        fsWatcher.Path = _DamageDumpFolder;
+
+                        var fsWatcherSource = new CancellationTokenSource();
+                        void OnFsChanged(object source, object _)
+                        {
+                            if (_GetLatestLogFile(_DamageDumpFolder) != logFile)
+                                fsWatcherSource.Cancel();
+                        }
+
+                        fsWatcher.Created += OnFsChanged;
+                        fsWatcher.Deleted += OnFsChanged;
+                        fsWatcher.Changed += OnFsChanged;
+                        fsWatcher.Renamed += OnFsChanged;
+
+                        fsWatcher.EnableRaisingEvents = true;
+
+                        await watcher.RunAsync(logFile, CancellationTokenSource.CreateLinkedTokenSource(ct, fsWatcherSource.Token).Token);
+                    }
                 }
                 catch (OperationCanceledException)
                 {
-
+                    // this exception does not mean anything as there are multiple
+                    // cancellation tokens that could have caused it, the function however
+                    // only cancels to one specific token and that is handled separately
                 }
                 catch (Exception ex)
                 {
@@ -122,9 +135,17 @@ namespace OverParse_NT.Client
                 }
                 finally
                 {
-                    // TODO: this should be some form of encounter end
-                    // instead of just discarding the data
-                    accumulator.Reset();
+                    await _BackgroundSemaphore.WaitAsync();
+                    try
+                    {
+                        // TODO: this should be some form of encounter end
+                        // instead of just discarding the data
+                        accumulator.Reset();
+                    }
+                    finally
+                    {
+                        _BackgroundSemaphore.Release();
+                    }
                 }
             }
         }
@@ -138,7 +159,16 @@ namespace OverParse_NT.Client
             if (logs.Count == 0)
                 return null;
 
-            logs.Sort();
+            logs.Sort(Comparer<string>.Create((x, y) =>
+            {
+                var resX = 0L;
+                if (!long.TryParse(Path.GetFileNameWithoutExtension(x), out resX))
+                    return -1;
+                var resY = 0L;
+                if (!long.TryParse(Path.GetFileNameWithoutExtension(y), out resY))
+                    return 1;
+                return resX.CompareTo(resY);
+            }));
             logs.Reverse();
 
             return logs.First();
