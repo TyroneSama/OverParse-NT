@@ -67,10 +67,11 @@ namespace OverParse_NT.Client
             });
         }
 
+        private DamageDumpCharacterAccumulator _Accumulator = new DamageDumpCharacterAccumulator();
+
         private async Task _BackgroundRunner(CancellationToken ct)
         {
-            var accumulator = new DamageDumpCharacterAccumulator();
-            accumulator.InfosChanged += (sender, infos) =>
+            _Accumulator.InfosChanged += (sender, infos) =>
             {
                 var ordered = infos.OrderByDescending(x => x.TotalDamage);
                 var items = ordered.Select(i => new DamageDisplayList.DamageDisplayData
@@ -117,7 +118,7 @@ namespace OverParse_NT.Client
                         await _BackgroundSemaphore.WaitAsync();
                         try
                         {
-                            accumulator.ProcessEntries(entries);
+                            _Accumulator.ProcessEntries(entries);
                         }
                         finally
                         {
@@ -158,20 +159,24 @@ namespace OverParse_NT.Client
                 }
                 finally
                 {
-                    await _BackgroundSemaphore.WaitAsync();
-                    try
-                    {
-                        // TODO: this should be some form of encounter end
-                        // instead of just discarding the data
-                        accumulator.Reset();
-                    }
-                    finally
-                    {
-                        _BackgroundSemaphore.Release();
-                    }
-
+                    await _ResetAccumulator();
                     Dispatcher.Invoke(() => _DamageDispalyListState = DamageDispalyListState.Waiting);
                 }
+            }
+        }
+
+        private async Task _ResetAccumulator()
+        {
+            await _BackgroundSemaphore.WaitAsync();
+            try
+            {
+                // TODO: this should be some form of encounter end
+                // instead of just discarding the data
+                _Accumulator.Reset();
+            }
+            finally
+            {
+                _BackgroundSemaphore.Release();
             }
         }
 
@@ -206,6 +211,11 @@ namespace OverParse_NT.Client
             _BackgroundRunnerTokenSource.Cancel();
             if (_BackgroundRunnerTask != null)
                 await _BackgroundRunnerTask;
+        }
+
+        private async void _ResetAccumulatorButtonPress(object sender, RoutedEventArgs e)
+        {
+            await _ResetAccumulator();
         }
     }
 }
