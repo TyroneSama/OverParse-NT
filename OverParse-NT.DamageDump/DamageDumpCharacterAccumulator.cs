@@ -50,7 +50,7 @@ namespace OverParse_NT.DamageDump
                     if (_Infos.ContainsKey(e.Source.Id))
                     {
                         var current = _Infos[e.Source.Id];
-                        var largerMaxHit = Math.Max(current.MaxHitDamage, e.Damage) > 0;
+                        var largerMaxHit = e.Damage > current.MaxHitDamage;
 
                         _Infos[e.Source.Id] = new Info
                         {
