@@ -42,8 +42,8 @@ namespace OverParse_NT.DamageDump
                     continue;
 
                 // discard zanverse for now
-                if (e.Action == 2106601422)
-                    continue;
+                // if (e.Action == 2106601422)
+                    // continue;
 
                 if (Math.Sign(e.Damage) > 0)
                 {
