@@ -34,7 +34,7 @@ namespace OverParse_NT.Client
         private Task _BackgroundRunnerTask;
         private SemaphoreSlim _BackgroundSemaphore = new SemaphoreSlim(1);
 
-        private enum DamageDispalyListState
+        private enum DamageDisplayListState
         {
             Waiting,
             Loading,
@@ -42,13 +42,13 @@ namespace OverParse_NT.Client
         }
 
         // TODO: replace this with actual bindings
-        private DamageDispalyListState _DamageDispalyListState
+        private DamageDisplayListState _DamageDispalyListState
         {
             set
             {
-                _DamageDisplayList.Visibility = value == DamageDispalyListState.Visible ? Visibility.Visible : Visibility.Collapsed;
-                _DamageDisplayListLoading.Visibility = value == DamageDispalyListState.Loading ? Visibility.Visible : Visibility.Collapsed;
-                _DamageDisplayListWaiting.Visibility = value == DamageDispalyListState.Waiting ? Visibility.Visible : Visibility.Collapsed;
+                _DamageDisplayList.Visibility = value == DamageDisplayListState.Visible ? Visibility.Visible : Visibility.Collapsed;
+                _DamageDisplayListLoading.Visibility = value == DamageDisplayListState.Loading ? Visibility.Visible : Visibility.Collapsed;
+                _DamageDisplayListWaiting.Visibility = value == DamageDisplayListState.Waiting ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -58,7 +58,7 @@ namespace OverParse_NT.Client
         {
             InitializeComponent();
 
-            _DamageDispalyListState = DamageDispalyListState.Waiting;
+            _DamageDispalyListState = DamageDisplayListState.Waiting;
 
             _BackgroundRunnerTask = _BackgroundRunner(_BackgroundRunnerTokenSource.Token).ContinueWith((t) =>
             {
@@ -89,7 +89,7 @@ namespace OverParse_NT.Client
                     _DamageDisplayList.Items.Clear();
                     foreach (var i in items)
                         _DamageDisplayList.Items.Add(i);
-                    _DamageDispalyListState = DamageDispalyListState.Visible;
+                    _DamageDispalyListState = DamageDisplayListState.Visible;
                 });
             };
 
@@ -110,7 +110,7 @@ namespace OverParse_NT.Client
 
                 try
                 {
-                    Dispatcher.Invoke(() => _DamageDispalyListState = DamageDispalyListState.Loading);
+                    Dispatcher.Invoke(() => _DamageDispalyListState = DamageDisplayListState.Loading);
 
                     var watcher = new LogFileWatcher();
                     watcher.OnNewEntries += async (sender, entries) =>
@@ -160,7 +160,7 @@ namespace OverParse_NT.Client
                 finally
                 {
                     await _ResetAccumulator();
-                    Dispatcher.Invoke(() => _DamageDispalyListState = DamageDispalyListState.Waiting);
+                    Dispatcher.Invoke(() => _DamageDispalyListState = DamageDisplayListState.Waiting);
                 }
             }
         }
