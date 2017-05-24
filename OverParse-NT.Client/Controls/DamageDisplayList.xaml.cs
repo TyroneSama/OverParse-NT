@@ -30,6 +30,7 @@ namespace OverParse_NT.Client.Controls
             private double _DamageRatio;
             private double _DamageRatioNormal;
             private double _DamageRatioZanverse;
+            private double _DamageRatioRelative;
             private string _MaxHitName;
             private long _MaxHitDamage;
 
@@ -76,6 +77,15 @@ namespace OverParse_NT.Client.Controls
                 {
                     _DamageRatioZanverse = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DamageRatioZanverse)));
+                }
+            }
+            public double DamageRatioRelative
+            {
+                get { return _DamageRatioRelative; }
+                set
+                {
+                    _DamageRatioRelative = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DamageRatioRelative)));
                 }
             }
             public string MaxHitName

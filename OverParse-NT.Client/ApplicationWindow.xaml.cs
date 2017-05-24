@@ -78,8 +78,8 @@ namespace OverParse_NT.Client
                 {
                     Name = i.Name,
                     Damage = i.TotalDamage,
-                    DamageRatio = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
-                    DamageRatioNormal = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
+                    DamageRatio = 100.0 * i.TotalDamage / ordered.Sum(x => x.TotalDamage),
+                    DamageRatioRelative = (100.0 / ordered.First().TotalDamage) * i.TotalDamage,
                     MaxHitDamage = i.MaxHitDamage,
                     MaxHitName = $"Id: {i.MaxHitAction}"
                 });

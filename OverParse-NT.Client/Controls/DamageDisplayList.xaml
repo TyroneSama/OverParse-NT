@@ -30,7 +30,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid>
-                        <ProgressBar Height="30" Grid.Column="1" Value="{Binding Path=DamageRatio}"/>
+                        <ProgressBar Height="30" Grid.Column="1" Value="{Binding Path=DamageRatioRelative}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
